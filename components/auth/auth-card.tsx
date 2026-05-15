@@ -141,7 +141,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
 
       <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
         {mode === "signup" ? "Already have an account?" : "New to Amazon?"}{" "}
-        <Link href={mode === "signup" ? "/login" : "/signup"} className="font-bold text-amazon-teal hover:text-amazon-orange">
+        <Link href={`${mode === "signup" ? "/login" : "/signup"}?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-bold text-amazon-teal hover:text-amazon-orange">
           {mode === "signup" ? "Sign in" : "Create your account"}
         </Link>
       </p>

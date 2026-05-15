@@ -166,9 +166,20 @@ export function Header() {
             </button>
           </form>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <Link href="/login" className="rounded-md bg-white/10 px-3 py-2">
-              Sign in
-            </Link>
+            {session?.user ? (
+              <>
+                <Link href="/dashboard/profile" className="rounded-md bg-white/10 px-3 py-2">
+                  Profile
+                </Link>
+                <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="rounded-md bg-white/10 px-3 py-2 text-left">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="rounded-md bg-white/10 px-3 py-2">
+                Sign in
+              </Link>
+            )}
             <Link href="/dashboard/orders" className="rounded-md bg-white/10 px-3 py-2">
               Your orders
             </Link>
