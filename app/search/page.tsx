@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { InfiniteProductGrid } from "@/components/product/infinite-product-grid";
 import { SearchControls } from "@/components/product/search-controls";
-import { Spinner } from "@/components/product/spinner";
+import Spinner from "@/components/product/spinner";
 import { searchProducts } from "@/lib/products";
 import type { SearchParams } from "@/types";
 
