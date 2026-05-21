@@ -1,27 +1,21 @@
 "use client";
 
-import { Menu, Moon, Search, ShoppingCart, Sun, UserRound, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, UserRound, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 
 import { useCartStore } from "@/components/providers/cart-store";
-import { Button } from "@/components/ui/button";
 import { categories } from "@/lib/data";
 
 export function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-  const { theme, setTheme } = useTheme();
   const cartCount = useCartStore((state) => state.count());
-  const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-
-  useEffect(() => setMounted(true), []);
 
   function onSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,15 +73,6 @@ export function Header() {
         </form>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hidden rounded-md p-2 hover:bg-white/10 sm:inline-flex"
-            aria-label="Toggle dark mode"
-          >
-            {mounted && theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
-
           {session?.user ? (
             <div className="group relative hidden sm:block">
               <Link href="/dashboard/orders" className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-white/10">
@@ -183,14 +168,6 @@ export function Header() {
             <Link href="/dashboard/orders" className="rounded-md bg-white/10 px-3 py-2">
               Your orders
             </Link>
-            <Button
-              variant="ghost"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="justify-start bg-white/10 text-white hover:bg-white/20"
-            >
-              {mounted && theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              Theme
-            </Button>
           </div>
         </div>
       )}

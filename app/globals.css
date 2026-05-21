@@ -6,8 +6,10 @@
   color-scheme: light;
 }
 
-.dark {
-  color-scheme: dark;
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
 }
 
 * {
@@ -35,9 +37,11 @@ body {
     "calt" 1;
 }
 
-.dark body {
-  background: #020617;
-  color: #e2e8f0;
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #020617;
+    color: #e2e8f0;
+  }
 }
 
 ::selection {
