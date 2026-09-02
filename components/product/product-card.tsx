@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { BarChart2, Eye, Heart, ShoppingCart, Zap } from "lucide-react";
+import { BarChart2, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,8 +10,8 @@ import { toast } from "sonner";
 import { useCartStore } from "@/components/providers/cart-store";
 import { useCompareStore } from "@/components/providers/compare-store";
 import { useWishlistStore } from "@/components/providers/wishlist-store";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PrimeBadge } from "@/components/ui/prime-badge";
 import { Rating } from "@/components/ui/rating";
 import { estimateDeliveryDate } from "@/lib/delivery";
 import { formatPrice } from "@/lib/utils";
@@ -50,31 +49,24 @@ export function ProductCard({ product, compact = false, sponsored = false }: Pro
   }
 
   return (
-    <motion.article
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
-      className="group relative flex h-full flex-col overflow-hidden rounded border border-slate-200 bg-white p-3 shadow-card transition hover:shadow-cardHover dark:border-white/10 dark:bg-slate-900"
-    >
+    <article className="group relative flex h-full flex-col rounded border border-slate-200 bg-white p-2.5 transition hover:border-slate-300 hover:shadow-cardHover dark:border-white/10 dark:bg-slate-900 sm:p-3">
       {(sponsored || product.isSponsored) && (
-        <span className="absolute right-2 top-2 z-10 text-[10px] text-slate-500">Sponsored</span>
+        <p className="mb-1 text-[10px] text-slate-400">Sponsored</p>
       )}
 
-      <Link href={`/products/${product.slug}`} className="relative block aspect-square overflow-hidden rounded bg-slate-50">
+      <Link href={`/products/${product.slug}`} className="relative block aspect-square overflow-hidden rounded bg-white">
         <Image
           src={product.images[0]}
           alt={product.title}
           fill
-          sizes="(max-width: 768px) 50vw, 20vw"
-          className="object-contain p-2 transition duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 18vw"
+          className="object-contain p-2 transition duration-300 group-hover:scale-[1.03]"
         />
-        <div className="absolute left-0 top-0 flex flex-col gap-1 p-1">
-          {product.discount > 0 && <Badge tone="deal">{product.discount}% off</Badge>}
-          {product.isPrime && <Badge tone="prime">prime</Badge>}
-          {product.isFlashDeal && <Badge tone="deal">⚡ Deal</Badge>}
-        </div>
-      </Link>
-
-      <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition group-hover:opacity-100">
+        {product.discount > 0 && (
+          <span className="absolute left-0 top-0 rounded-br bg-amazon-red px-1.5 py-0.5 text-[11px] font-bold text-white">
+            -{product.discount}%
+          </span>
+        )}
         <button
           type="button"
           onClick={(e) => {
@@ -83,72 +75,77 @@ export function ProductCard({ product, compact = false, sponsored = false }: Pro
             toast.success(isWishlisted ? "Removed from wishlist" : "Saved to wishlist");
           }}
           className={cn(
-            "rounded-full bg-white/95 p-1.5 shadow-sm dark:bg-slate-900",
-            isWishlisted && "text-red-500"
+            "absolute right-0 top-0 rounded-bl bg-white/90 p-1.5 opacity-0 shadow-sm transition group-hover:opacity-100 dark:bg-slate-900/90",
+            isWishlisted && "text-red-500 opacity-100"
           )}
           aria-label="Wishlist"
         >
           <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
         </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            const ok = addCompare(product);
-            toast[ok ? "success" : "error"](ok ? "Added to compare" : "Compare list full (max 4)");
-          }}
-          className="rounded-full bg-white/95 p-1.5 shadow-sm dark:bg-slate-900"
-          aria-label="Compare"
-        >
-          <BarChart2 className="h-4 w-4" />
-        </button>
-        <Link
-          href={`/products/${product.slug}`}
-          className="rounded-full bg-white/95 p-1.5 shadow-sm dark:bg-slate-900"
-          aria-label="Quick view"
-        >
-          <Eye className="h-4 w-4" />
-        </Link>
-      </div>
+      </Link>
 
       <div className="mt-2 flex flex-1 flex-col">
-        <p className="text-xs text-slate-500">{product.brand}</p>
+        <p className="text-[11px] uppercase tracking-wide text-slate-500">{product.brand}</p>
         <Link
           href={`/products/${product.slug}`}
-          className="amazon-link mt-0.5 line-clamp-2 text-sm leading-snug text-slate-900 dark:text-white"
+          className="mt-0.5 line-clamp-2 min-h-[2.5em] text-sm leading-snug text-slate-900 hover:text-amazon-orange hover:underline dark:text-white"
         >
           {product.title}
         </Link>
-        <Rating value={product.rating} count={product.reviewCount} className="mt-1.5" />
+        <Rating value={product.rating} count={product.reviewCount} className="mt-1 text-xs" />
 
-        <div className="mt-2">
+        <div className="mt-1.5">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg text-slate-950 dark:text-white">{formatPrice(product.price)}</span>
-            <span className="text-xs text-slate-500 line-through">{formatPrice(product.mrp)}</span>
+            <span className="text-lg font-bold text-slate-950 dark:text-white">{formatPrice(product.price)}</span>
+            {savings > 0 && <span className="text-xs text-slate-500 line-through">{formatPrice(product.mrp)}</span>}
           </div>
-          {savings > 0 && (
-            <p className="text-xs text-amazon-red">Save {formatPrice(savings)}</p>
-          )}
-          <p className={cn("mt-1 text-xs", inStock ? "text-amazon-green" : "text-amazon-red")}>
-            {inStock ? `FREE delivery ${deliveryDate}` : "Currently unavailable"}
+          <div className="mt-1 flex items-center gap-2">
+            {product.isPrime && <PrimeBadge />}
+            {product.isFlashDeal && <span className="text-[11px] font-bold text-amazon-red">⚡ Deal</span>}
+          </div>
+          <p className={cn("mt-1 text-xs", inStock ? "text-slate-600 dark:text-slate-300" : "text-amazon-red")}>
+            {inStock ? (
+              <>
+                <span className="text-amazon-green">FREE delivery</span> {deliveryDate}
+              </>
+            ) : (
+              "Currently unavailable"
+            )}
           </p>
         </div>
 
         {!compact && (
-          <div className="mt-auto space-y-2 pt-3">
-            <Button onClick={addToCart} className="w-full" size="sm" disabled={!inStock || adding}>
-              <motion.span animate={adding ? { scale: [1, 1.2, 1] } : {}} className="flex items-center gap-1">
-                <ShoppingCart className="h-4 w-4" />
-                Add to cart
-              </motion.span>
+          <div className="mt-2 flex items-center gap-1.5 pt-1">
+            <Button onClick={addToCart} className="h-8 flex-1 rounded-[4px] px-2 text-xs" disabled={!inStock || adding}>
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add to cart
             </Button>
-            <Button variant="secondary" onClick={buyNow} className="w-full" size="sm" disabled={!inStock}>
-              <Zap className="h-4 w-4" />
-              Buy Now
-            </Button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                const ok = addCompare(product);
+                toast[ok ? "success" : "error"](ok ? "Added to compare" : "Compare list full (max 4)");
+              }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-slate-200 text-slate-500 hover:border-amazon-orange hover:text-amazon-orange dark:border-white/10"
+              aria-label="Compare"
+              title="Compare"
+            >
+              <BarChart2 className="h-3.5 w-3.5" />
+            </button>
           </div>
         )}
+        {!compact && (
+          <button
+            type="button"
+            onClick={buyNow}
+            disabled={!inStock}
+            className="mt-1.5 h-8 w-full rounded-[4px] bg-amazon-orange text-xs font-bold text-slate-950 shadow-sm transition hover:bg-[#ed8c00] disabled:pointer-events-none disabled:opacity-50"
+          >
+            Buy Now
+          </button>
+        )}
       </div>
-    </motion.article>
+    </article>
   );
 }

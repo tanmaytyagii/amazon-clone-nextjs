@@ -6,7 +6,17 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const statusSchema = z.object({
-  status: z.enum(["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"])
+  status: z.enum([
+    "PENDING",
+    "PAID",
+    "PROCESSING",
+    "PACKED",
+    "SHIPPED",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED",
+    "CANCELLED",
+    "RETURNED"
+  ])
 });
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {

@@ -2,25 +2,73 @@ import { Boxes, IndianRupee, PackageCheck, UsersRound } from "lucide-react";
 
 import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
 import { AdminShell } from "@/components/admin/admin-shell";
-import { products } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Admin Overview"
 };
 
-export default function AdminPage() {
-  const revenue = products.slice(0, 6).reduce((sum, product) => sum + product.price * 3, 0);
+async function getOverviewData() {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const [productCount, orderCount, userCount, paidRevenue, recentOrders, orderItems] = await Promise.all([
+    prisma.product.count(),
+    prisma.order.count(),
+    prisma.user.count(),
+    prisma.order.aggregate({ where: { paymentStatus: "PAID" }, _sum: { total: true } }),
+    prisma.order.findMany({
+      where: { createdAt: { gte: sevenDaysAgo } },
+      select: { total: true, createdAt: true }
+    }),
+    prisma.orderItem.findMany({ select: { productId: true, title: true, quantity: true } })
+  ]);
+
+  const revenue = paidRevenue._sum.total ?? 0;
+
+  const dailyRevenue: { label: string; value: number }[] = Array.from({ length: 7 }).map((_, index) => {
+    const day = new Date(sevenDaysAgo);
+    day.setDate(sevenDaysAgo.getDate() + index);
+    const label = day.toLocaleDateString("en-IN", { weekday: "short" });
+    const total = recentOrders
+      .filter((order) => new Date(order.createdAt).toDateString() === day.toDateString())
+      .reduce((sum, order) => sum + order.total, 0);
+    return { label, value: total };
+  });
+
+  const productTotals = new Map<string, { title: string; quantity: number }>();
+  for (const item of orderItems) {
+    const existing = productTotals.get(item.productId);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      productTotals.set(item.productId, { title: item.title, quantity: item.quantity });
+    }
+  }
+  const topProducts = Array.from(productTotals.values())
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 4);
+
+  return { productCount, orderCount, userCount, revenue, dailyRevenue, topProducts };
+}
+
+export default async function AdminPage() {
+  const { productCount, orderCount, userCount, revenue, dailyRevenue, topProducts } = await getOverviewData();
+  const avgOrderValue = orderCount > 0 ? revenue / orderCount : 0;
 
   return (
     <AdminShell title="Overview">
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: "Products", value: products.length, icon: Boxes },
-            { label: "Orders", value: 128, icon: PackageCheck },
-            { label: "Users", value: "2.4k", icon: UsersRound },
-            { label: "Revenue", value: formatPrice(revenue), icon: IndianRupee }
+            { label: "Products", value: productCount, icon: Boxes },
+            { label: "Orders", value: orderCount, icon: PackageCheck },
+            { label: "Users", value: userCount, icon: UsersRound },
+            { label: "Revenue (paid)", value: formatPrice(revenue), icon: IndianRupee }
           ].map((stat) => {
             const Icon = stat.icon;
 
@@ -33,7 +81,14 @@ export default function AdminPage() {
             );
           })}
         </div>
-        <AnalyticsDashboard />
+        <AnalyticsDashboard
+          revenue={revenue}
+          orderCount={orderCount}
+          userCount={userCount}
+          avgOrderValue={avgOrderValue}
+          dailyRevenue={dailyRevenue}
+          topProducts={topProducts}
+        />
       </div>
     </AdminShell>
   );

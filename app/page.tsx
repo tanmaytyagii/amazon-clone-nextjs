@@ -14,13 +14,15 @@ import {
 } from "@/components/home/home-sections";
 import { PrimePanel } from "@/components/home/prime-panel";
 import { RecentlyViewedHome } from "@/components/home/recently-viewed-home";
-import { categories, products } from "@/lib/data";
-import { getFeaturedProducts } from "@/lib/products";
+import { categories } from "@/lib/data";
+import { getAllProducts, getFeaturedProducts } from "@/lib/products";
 
 import { ProductShowcase } from "@/components/home/product-showcase";
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [products, featured] = await Promise.all([getAllProducts(), getFeaturedProducts()]);
   const electronics = products
     .filter((p) => p.category === "Electronics" || p.category === "Mobiles")
     .slice(0, 5);
@@ -31,18 +33,18 @@ export default function HomePage() {
   return (
     <div className="pb-8">
       <HeroCarousel />
-      <div className="-mt-24 relative z-10 space-y-6">
+      <div className="relative z-10 -mt-4 space-y-5 sm:-mt-8">
         <div className="amazon-section">
           <CategoryTiles categories={categories} />
         </div>
-        <TodaysDeals />
-        <LightningDeals />
-        <TrendingProducts />
-        <BestSellers />
-        <NewArrivals />
-        <RecommendedForYou />
-        <RecentlyViewedHome />
-        <ContinueShoppingClient />
+        <TodaysDeals products={products} />
+        <LightningDeals products={products} />
+        <TrendingProducts products={products} />
+        <BestSellers products={products} />
+        <NewArrivals products={products} />
+        <RecommendedForYou products={featured} />
+        <RecentlyViewedHome products={products} />
+        <ContinueShoppingClient products={products} />
         <ProductShowcase
           title="Featured for Indian shoppers"
           subtitle="Prime badges, discounts, reviews, and quick cart actions."
@@ -50,8 +52,8 @@ export default function HomePage() {
           href="/search"
         />
         <PrimePanel />
-        <PrimeExclusiveDeals />
-        <SponsoredProducts />
+        <PrimeExclusiveDeals products={products} />
+        <SponsoredProducts products={products} />
         <SeasonalOffers />
         <ProductShowcase
           title="Electronics and mobiles"

@@ -33,28 +33,28 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
-    const form = new FormData(event.currentTarget);
-    const title = String(form.get("title"));
-    const payload: Product = {
-      id: editing?.id ?? crypto.randomUUID(),
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const title = String(formData.get("title"));
+    const payload = {
       title,
-      slug: String(form.get("slug")) || slugify(title),
-      brand: String(form.get("brand")),
-      category: String(form.get("category")),
-      description: String(form.get("description")),
-      images: [String(form.get("image"))],
-      price: Number(form.get("price")),
-      mrp: Number(form.get("mrp")),
-      discount: Number(form.get("discount")),
-      stock: Number(form.get("stock")),
+      slug: String(formData.get("slug")) || slugify(title),
+      brand: String(formData.get("brand")),
+      category: String(formData.get("category")),
+      description: String(formData.get("description")),
+      images: [String(formData.get("image"))],
+      price: Number(formData.get("price")),
+      mrp: Number(formData.get("mrp")),
+      discount: Number(formData.get("discount")),
+      stock: Number(formData.get("stock")),
       rating: editing?.rating ?? 4.2,
       reviewCount: editing?.reviewCount ?? 0,
-      tags: String(form.get("tags"))
+      tags: String(formData.get("tags"))
         .split(",")
         .map((tag) => tag.trim())
         .filter(Boolean),
       isPrime: true,
-      isFeatured: form.get("isFeatured") === "on"
+      isFeatured: formData.get("isFeatured") === "on"
     };
 
     try {
@@ -64,15 +64,18 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok && response.status !== 403) {
-        throw new Error("API save failed.");
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(data?.message ?? "Unable to save product.");
       }
 
-      setProducts((items) => (editing ? items.map((item) => (item.id === editing.id ? payload : item)) : [payload, ...items]));
+      const saved: Product = data.product;
+      setProducts((items) => (editing ? items.map((item) => (item.id === editing.id ? saved : item)) : [saved, ...items]));
       setEditing(null);
-      event.currentTarget.reset();
+      form.reset();
       toast.success(editing ? "Product updated" : "Product added", {
-        description: response.status === 403 ? "Updated locally in demo mode. Sign in as admin to persist." : "MongoDB product collection updated."
+        description: "Saved to the database — visible on the storefront immediately."
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to save product.");
@@ -82,9 +85,17 @@ export function ProductManager({ initialProducts }: { initialProducts: Product[]
   }
 
   async function deleteProduct(product: Product) {
+    const previous = products;
     setProducts((items) => items.filter((item) => item.id !== product.id));
-    await fetch(`/api/admin/products/${product.id}`, { method: "DELETE" }).catch(() => null);
-    toast.success("Product removed", { description: "Removed from this admin view." });
+
+    try {
+      const response = await fetch(`/api/admin/products/${product.id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Unable to delete product.");
+      toast.success("Product removed", { description: "Removed from the database." });
+    } catch (error) {
+      setProducts(previous);
+      toast.error(error instanceof Error ? error.message : "Unable to delete product.");
+    }
   }
 
   return (

@@ -1,66 +1,57 @@
 "use client";
 
+import type { Prisma } from "@prisma/client";
 import { PackageCheck, Truck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
-import { products } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 
-type AdminOrder = {
-  id: string;
-  customer: string;
-  email: string;
-  total: number;
-  status: "PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-  createdAt: string;
-  items: number;
-};
+type AdminOrder = Prisma.OrderGetPayload<{
+  include: { items: true; user: { select: { name: true; email: true } } };
+}>;
 
-const initialOrders: AdminOrder[] = [
-  {
-    id: "ord_1001",
-    customer: "Aditi Sharma",
-    email: "aditi@example.com",
-    total: products[0].price + products[2].price,
-    status: "PROCESSING",
-    createdAt: "2026-05-09",
-    items: 2
-  },
-  {
-    id: "ord_1002",
-    customer: "Rahul Menon",
-    email: "rahul@example.com",
-    total: products[6].price,
-    status: "SHIPPED",
-    createdAt: "2026-05-08",
-    items: 1
-  },
-  {
-    id: "ord_1003",
-    customer: "Nisha Kapoor",
-    email: "nisha@example.com",
-    total: products[8].price,
-    status: "PAID",
-    createdAt: "2026-05-07",
-    items: 1
-  }
+const statuses: AdminOrder["status"][] = [
+  "PENDING",
+  "PAID",
+  "PROCESSING",
+  "PACKED",
+  "SHIPPED",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+  "RETURNED"
 ];
 
-const statuses: AdminOrder["status"][] = ["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
-
-export function OrderManager() {
+export function OrderManager({ initialOrders }: { initialOrders: AdminOrder[] }) {
   const [orders, setOrders] = useState(initialOrders);
 
   async function updateStatus(orderId: string, status: AdminOrder["status"]) {
+    const previous = orders;
     setOrders((items) => items.map((item) => (item.id === orderId ? { ...item, status } : item)));
-    await fetch(`/api/admin/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
-    }).catch(() => null);
-    toast.success("Order status updated", { description: "Demo table updated immediately." });
+
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      if (!response.ok) throw new Error("Unable to update order status.");
+      toast.success("Order status updated");
+    } catch (error) {
+      setOrders(previous);
+      toast.error(error instanceof Error ? error.message : "Unable to update order status.");
+    }
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="rounded-lg border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <p className="font-bold">No orders yet</p>
+        <p className="mt-1 text-sm text-slate-500">Orders placed by customers will show up here.</p>
+      </div>
+    );
   }
 
   return (
@@ -68,16 +59,18 @@ export function OrderManager() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
           <PackageCheck className="h-6 w-6 text-amazon-teal" />
-          <p className="mt-3 text-xs font-black uppercase text-slate-500">Open orders</p>
+          <p className="mt-3 text-xs font-black uppercase text-slate-500">Total orders</p>
           <p className="mt-1 text-3xl font-black tracking-normal">{orders.length}</p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
           <Truck className="h-6 w-6 text-amazon-orange" />
           <p className="mt-3 text-xs font-black uppercase text-slate-500">Shipping queue</p>
-          <p className="mt-1 text-3xl font-black tracking-normal">{orders.filter((order) => order.status === "PROCESSING" || order.status === "PAID").length}</p>
+          <p className="mt-1 text-3xl font-black tracking-normal">
+            {orders.filter((order) => order.status === "PROCESSING" || order.status === "PAID" || order.status === "PACKED").length}
+          </p>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-xs font-black uppercase text-slate-500">Revenue preview</p>
+          <p className="text-xs font-black uppercase text-slate-500">Revenue</p>
           <p className="mt-3 text-3xl font-black tracking-normal">{formatPrice(orders.reduce((sum, order) => sum + order.total, 0))}</p>
         </div>
       </div>
@@ -100,16 +93,18 @@ export function OrderManager() {
                 <tr key={order.id}>
                   <td className="px-4 py-4">
                     <p className="font-black text-slate-950 dark:text-white">{order.id}</p>
-                    <p className="text-xs text-slate-500">{order.createdAt}</p>
+                    <p className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleDateString("en-IN")}</p>
                   </td>
                   <td className="px-4 py-4">
-                    <p className="font-bold">{order.customer}</p>
-                    <p className="text-xs text-slate-500">{order.email}</p>
+                    <p className="font-bold">{order.user?.name ?? "Unknown"}</p>
+                    <p className="text-xs text-slate-500">{order.user?.email ?? order.shippingPhone}</p>
                   </td>
-                  <td className="px-4 py-4">{order.items}</td>
+                  <td className="px-4 py-4">{order.items.length}</td>
                   <td className="px-4 py-4 font-bold">{formatPrice(order.total)}</td>
                   <td className="px-4 py-4">
-                    <Badge tone={order.status === "DELIVERED" ? "success" : order.status === "CANCELLED" ? "deal" : "prime"}>{order.status}</Badge>
+                    <Badge tone={order.status === "DELIVERED" ? "success" : order.status === "CANCELLED" || order.status === "RETURNED" ? "deal" : "prime"}>
+                      {order.status}
+                    </Badge>
                   </td>
                   <td className="px-4 py-4">
                     <select

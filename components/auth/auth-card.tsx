@@ -67,7 +67,7 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-auto w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-glow dark:border-white/10 dark:bg-slate-900"
+      className="mx-auto w-full max-w-md rounded border border-slate-200 bg-white p-6 shadow-card dark:border-white/10 dark:bg-slate-900"
     >
       <div className="mb-6 text-center">
         <Link href="/" className="inline-flex items-end text-3xl font-black text-slate-950 dark:text-white">

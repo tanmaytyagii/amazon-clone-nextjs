@@ -2,6 +2,13 @@
   "name": "amazon-india-modern-clone",
   "version": "1.0.0",
   "private": true,
+  "description": "An educational full-stack Amazon.in-inspired e-commerce clone built with Next.js, TypeScript, MongoDB/Prisma, NextAuth, and Stripe.",
+  "author": "Tanmay Tyagi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tanmaytyagii/amazon-clone-nextjs.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -11,7 +18,7 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx --env-file=.env.local scripts/seed.ts"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",

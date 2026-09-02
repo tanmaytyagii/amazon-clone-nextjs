@@ -29,6 +29,24 @@ export const cartItemSchema = z.object({
   quantity: z.number().int().min(1).max(20)
 });
 
+export const reviewSchema = z.object({
+  productId: z.string().min(1),
+  rating: z.number().int().min(1).max(5),
+  title: z.string().min(3).max(120),
+  comment: z.string().min(10).max(2000)
+});
+
+export const addressSchema = z.object({
+  fullName: z.string().min(2),
+  phone: z.string().min(8),
+  line1: z.string().min(4),
+  line2: z.string().optional(),
+  city: z.string().min(2),
+  state: z.string().min(2),
+  pincode: z.string().min(4),
+  isDefault: z.boolean().optional()
+});
+
 export const checkoutSchema = z.object({
   items: z.array(cartItemSchema).min(1),
   address: z.object({

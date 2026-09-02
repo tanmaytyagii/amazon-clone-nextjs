@@ -1,10 +1,11 @@
 "use client";
 
+import type { Address } from "@prisma/client";
 import { Check, CreditCard, Loader2, MapPin, Package, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useCartStore } from "@/components/providers/cart-store";
@@ -40,6 +41,56 @@ export function CheckoutForm() {
     state: "",
     pincode: ""
   });
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session?.user) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/addresses");
+        if (!response.ok) return;
+        const data = (await response.json()) as { addresses: Address[] };
+        if (cancelled) return;
+
+        setSavedAddresses(data.addresses);
+        const preferred = data.addresses.find((a) => a.isDefault) ?? data.addresses[0];
+        if (preferred) {
+          setSelectedAddressId(preferred.id);
+          setAddress({
+            fullName: preferred.fullName,
+            phone: preferred.phone,
+            line1: preferred.line1,
+            line2: preferred.line2 ?? "",
+            city: preferred.city,
+            state: preferred.state,
+            pincode: preferred.pincode
+          });
+        }
+      } catch {
+        // saved addresses are a convenience; manual entry still works
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user]);
+
+  function selectSavedAddress(saved: Address) {
+    setSelectedAddressId(saved.id);
+    setAddress({
+      fullName: saved.fullName,
+      phone: saved.phone,
+      line1: saved.line1,
+      line2: saved.line2 ?? "",
+      city: saved.city,
+      state: saved.state,
+      pincode: saved.pincode
+    });
+  }
 
   const shipping = calculateShipping(subtotal, true) + (deliveryMethod === "express" ? 99 : 0);
   const tax = calculateTax(subtotal - couponDiscount);
@@ -135,6 +186,52 @@ export function CheckoutForm() {
           {step === "address" && (
             <div>
               <h1 className="text-2xl font-bold">Select delivery address</h1>
+
+              {savedAddresses.length > 0 && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {savedAddresses.map((saved) => (
+                    <label
+                      key={saved.id}
+                      className={`flex cursor-pointer items-start gap-2 rounded border p-3 text-sm ${
+                        selectedAddressId === saved.id ? "border-amazon-orange bg-amber-50/50" : "border-slate-200 dark:border-white/10"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="savedAddress"
+                        className="mt-1"
+                        checked={selectedAddressId === saved.id}
+                        onChange={() => selectSavedAddress(saved)}
+                      />
+                      <span>
+                        <span className="block font-bold">
+                          {saved.fullName} {saved.isDefault && <span className="text-xs font-normal text-amazon-orange">(Default)</span>}
+                        </span>
+                        <span className="text-slate-600 dark:text-slate-300">
+                          {saved.line1}, {saved.city}, {saved.state} {saved.pincode}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                  <label
+                    className={`flex cursor-pointer items-center gap-2 rounded border p-3 text-sm ${
+                      selectedAddressId === null ? "border-amazon-orange bg-amber-50/50" : "border-slate-200 dark:border-white/10"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="savedAddress"
+                      checked={selectedAddressId === null}
+                      onChange={() => {
+                        setSelectedAddressId(null);
+                        setAddress({ fullName: "", phone: "", line1: "", line2: "", city: "", state: "", pincode: "" });
+                      }}
+                    />
+                    Use a different address
+                  </label>
+                </div>
+              )}
+
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {Object.entries({
                   fullName: "Full name",

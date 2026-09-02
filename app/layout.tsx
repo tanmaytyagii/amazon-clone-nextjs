@@ -8,17 +8,20 @@ import { AppProviders } from "@/components/providers/app-providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: {
-    default: "Amazon India Clone | Modern Full-Stack Marketplace",
+    default: "Amazon India Clone | Educational Full-Stack Marketplace",
     template: "%s | Amazon India Clone"
   },
   description:
-    "A modern full-stack Amazon India-inspired ecommerce app built with Next.js 15, TypeScript, Tailwind CSS, MongoDB, Prisma, NextAuth, and Stripe.",
-  keywords: ["Amazon clone", "Next.js ecommerce", "MongoDB Prisma", "Stripe checkout", "NextAuth"],
+    "An educational full-stack Amazon.in-inspired e-commerce clone built with Next.js, TypeScript, Tailwind CSS, MongoDB, Prisma, NextAuth, and Stripe. Not affiliated with Amazon.com, Inc.",
+  keywords: ["Amazon clone", "Next.js ecommerce", "MongoDB Prisma", "Stripe checkout", "NextAuth", "portfolio project"],
+  authors: [{ name: "Tanmay Tyagi" }],
   openGraph: {
     title: "Amazon India Clone",
-    description: "Portfolio-grade ecommerce marketplace with cart, checkout, dashboard, admin panel, and responsive UI.",
-    type: "website"
+    description: "An educational full-stack Amazon.in-inspired marketplace with cart, checkout, dashboard, admin panel, and a responsive UI.",
+    type: "website",
+    images: ["/hero/1.jpg"]
   }
 };
 

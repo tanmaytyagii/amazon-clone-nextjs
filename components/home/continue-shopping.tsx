@@ -2,10 +2,9 @@
 
 import { ProductShowcase } from "@/components/home/product-showcase";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { products } from "@/lib/data";
 import type { Product } from "@/types";
 
-export function ContinueShoppingClient() {
+export function ContinueShoppingClient({ products }: { products: Product[] }) {
   const [recent, , hydrated] = useLocalStorage<string[]>("amazon-continue-shopping", []);
 
   if (!hydrated || recent.length === 0) return null;

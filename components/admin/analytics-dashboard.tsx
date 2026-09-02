@@ -2,14 +2,34 @@
 
 import { motion } from "framer-motion";
 
-const metrics = [
-  { label: "Revenue", value: "₹12.4L", change: "+18%", color: "bg-amazon-orange" },
-  { label: "Orders", value: "1,284", change: "+12%", color: "bg-amazon-teal" },
-  { label: "Users", value: "8,420", change: "+24%", color: "bg-blue-600" },
-  { label: "Conversion", value: "3.8%", change: "+0.4%", color: "bg-amazon-green" }
-];
+import { formatPrice } from "@/lib/utils";
 
-export function AnalyticsDashboard() {
+type AnalyticsDashboardProps = {
+  revenue: number;
+  orderCount: number;
+  userCount: number;
+  avgOrderValue: number;
+  dailyRevenue: { label: string; value: number }[];
+  topProducts: { title: string; quantity: number }[];
+};
+
+export function AnalyticsDashboard({
+  revenue,
+  orderCount,
+  userCount,
+  avgOrderValue,
+  dailyRevenue,
+  topProducts
+}: AnalyticsDashboardProps) {
+  const metrics = [
+    { label: "Revenue (paid)", value: formatPrice(revenue), color: "bg-amazon-orange" },
+    { label: "Orders", value: String(orderCount), color: "bg-amazon-teal" },
+    { label: "Users", value: String(userCount), color: "bg-blue-600" },
+    { label: "Avg. order value", value: formatPrice(avgOrderValue), color: "bg-amazon-green" }
+  ];
+
+  const maxDaily = Math.max(1, ...dailyRevenue.map((day) => day.value));
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -23,7 +43,6 @@ export function AnalyticsDashboard() {
           >
             <p className="text-sm text-slate-500">{m.label}</p>
             <p className="mt-1 text-2xl font-bold">{m.value}</p>
-            <p className="mt-1 text-xs font-bold text-amazon-green">{m.change}</p>
             <div className={`mt-3 h-1.5 w-full rounded-full ${m.color} opacity-80`} />
           </motion.div>
         ))}
@@ -32,22 +51,37 @@ export function AnalyticsDashboard() {
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="amazon-card">
           <h3 className="font-bold">Sales (last 7 days)</h3>
-          <div className="mt-4 flex h-40 items-end gap-2">
-            {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
-              <div key={i} className="flex-1 rounded-t bg-amazon-orange/80" style={{ height: `${h}%` }} />
-            ))}
-          </div>
+          {dailyRevenue.every((day) => day.value === 0) ? (
+            <p className="mt-4 text-sm text-slate-500">No orders in the last 7 days yet.</p>
+          ) : (
+            <div className="mt-4 flex h-40 items-end gap-2">
+              {dailyRevenue.map((day) => (
+                <div key={day.label} className="flex flex-1 flex-col items-center gap-1">
+                  <div
+                    className="w-full rounded-t bg-amazon-orange/80"
+                    style={{ height: `${Math.max(4, (day.value / maxDaily) * 100)}%` }}
+                    title={formatPrice(day.value)}
+                  />
+                  <span className="text-[10px] text-slate-500">{day.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="amazon-card">
           <h3 className="font-bold">Top products</h3>
-          <ul className="mt-4 space-y-3 text-sm">
-            {["OnePlus Nord CE 4", "Samsung Crystal 4K TV", "Sony WH-1000XM5", "Kindle Paperwhite"].map((name, i) => (
-              <li key={name} className="flex justify-between">
-                <span>{name}</span>
-                <span className="font-bold">{120 - i * 18} sold</span>
-              </li>
-            ))}
-          </ul>
+          {topProducts.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-500">No sales recorded yet.</p>
+          ) : (
+            <ul className="mt-4 space-y-3 text-sm">
+              {topProducts.map((product) => (
+                <li key={product.title} className="flex justify-between gap-4">
+                  <span className="line-clamp-1">{product.title}</span>
+                  <span className="shrink-0 font-bold">{product.quantity} sold</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

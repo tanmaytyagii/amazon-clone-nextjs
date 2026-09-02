@@ -1,14 +1,17 @@
 import Link from "next/link";
 
 import { ProductGrid } from "@/components/product/product-grid";
-import { products } from "@/lib/data";
+import { getAllProducts } from "@/lib/products";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Amazon Prime",
   description: "Prime membership benefits, exclusive deals, and fast delivery."
 };
 
-export default function PrimePage() {
+export default async function PrimePage() {
+  const products = await getAllProducts();
   const primeProducts = products.filter((p) => p.isPrime).slice(0, 8);
 
   return (

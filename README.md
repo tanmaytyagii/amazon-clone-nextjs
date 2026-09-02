@@ -1,10 +1,8 @@
 <div align="center">
 
-# Amazon India — Modern Commerce Platform
+# Amazon India Clone
 
-### A production-grade full-stack e-commerce platform inspired by Amazon India
-
-Secure authentication · Stripe-powered checkout · Role-based admin console · Persisted cart & wishlist state · MongoDB via Prisma
+### An educational full-stack Amazon.in-inspired e-commerce clone built with Next.js
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -14,7 +12,7 @@ Secure authentication · Stripe-powered checkout · Role-based admin console · 
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
 [![Stripe](https://img.shields.io/badge/Stripe-Checkout-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
 [![NextAuth.js](https://img.shields.io/badge/NextAuth.js-4.24-black)](https://next-auth.js.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [Live Demo](https://amazon-clone-nextjs-pi.vercel.app/) · [Report an Issue](https://github.com/tanmaytyagii/amazon-clone-nextjs/issues) · [Request a Feature](https://github.com/tanmaytyagii/amazon-clone-nextjs/issues)
 
@@ -22,9 +20,20 @@ Secure authentication · Stripe-powered checkout · Role-based admin console · 
 
 ---
 
+## ⚠️ Educational Project Disclaimer
+
+This is an **independent, non-commercial portfolio project** built to demonstrate full-stack engineering skills. It recreates the *look and core shopping flow* of Amazon.in for learning purposes only.
+
+- **Not affiliated with, endorsed by, or sponsored by Amazon.com, Inc.** or any of its affiliates.
+- "Amazon" and related marks are trademarks of Amazon.com, Inc.; they are referenced here solely to describe the design this project is styled after.
+- All product listings, brand names, prices, and reviews in the seed catalog are **fictional/demo data** for illustration only — no real inventory, sellers, or transactions exist.
+- Payments run through **Stripe test mode**; no real payment processing is intended or supported.
+
+---
+
 ## Overview
 
-**Amazon India** is a full-stack e-commerce application that reproduces the core shopping experience of a modern marketplace: product discovery, cart and wishlist management, authenticated checkout, Stripe payment processing, order lifecycle tracking, and an admin console for catalog and order operations.
+**Amazon India Clone** is a full-stack e-commerce application that reproduces the core shopping experience of a modern marketplace: product discovery, cart and wishlist management, authenticated checkout, Stripe payment processing, order lifecycle tracking, customer reviews, and an admin console for catalog and order operations.
 
 The project is built on the Next.js App Router with a typed, server-first architecture — API routes handle validation, authorization, and persistence, while the client layer uses Zustand for fast, persisted UI state (cart, wishlist, compare list, delivery preferences) without round-tripping to the server for every interaction.
 
@@ -33,13 +42,16 @@ The project is built on the Next.js App Router with a typed, server-first archit
 - A relational-style data model (users, products, orders, reviews, addresses, coupons, payments) implemented on a document database (MongoDB) via Prisma, including referential relations and enums for order/payment state machines.
 - A real checkout pipeline: server-side order creation → Stripe Checkout Session → signature-verified webhook → order status transition, rather than a client-only "fake payment" flow.
 - Credential and OAuth authentication in the same NextAuth configuration, with JWT sessions, password hashing, and role-based route protection enforced both in middleware and inside individual API handlers.
+- A 189-product demo catalog spanning 22 categories, backed by MongoDB with an automatic static fallback so the storefront still renders if the database is unreachable.
 - A seed script that provisions a working demo environment (admin account, customer account, catalog, and a sample order) in one command.
 
-This is not a static UI mockup — every checkout, cart, review, wishlist, and admin action reads from and writes to a real database through typed, validated API routes.
+This is not a static UI mockup — every checkout, cart, review, wishlist, address, and admin action reads from and writes to a real database through typed, validated API routes.
 
 ---
 
-## Visual Showcase
+## Screenshots
+
+> Add your own screenshots to `public/screenshots/` and reference them here — the images below were captured from an earlier version of the UI and may not reflect the current catalog, header, or layout. Regenerate them after running the app locally for an accurate preview.
 
 | Home & Product Discovery | Product Detail |
 |---|---|
@@ -49,95 +61,80 @@ This is not a static UI mockup — every checkout, cart, review, wishlist, and a
 |---|---|
 | ![Search and Filters](public/screenshots/search-filters.png) | ![Admin Dashboard](public/screenshots/admin-overview.png) |
 
-> Screenshots are served directly from `public/screenshots/`. Cart, checkout, and per-user dashboard views are best explored by running the app locally with the seed data described below.
-
 ---
 
-## Feature Set
+## Features
 
-### Customer Experience
+### Product Catalog & Discovery
 
-| Feature | Engineering Detail |
+| Feature | Detail |
 |---|---|
-| **Storefront & category browsing** | Category-driven product feed with hero campaign slides, rendered server-first for fast initial paint. |
-| **Search with live suggestions** | Debounced query hook (`hooks/use-debounce.ts`) backed by a dedicated `/api/search/suggestions` endpoint, with per-user search history persisted via `SearchHistory`. |
-| **Product comparison** | Client-side compare list (`compare-store.ts`, Zustand) lets shoppers stage multiple products for a side-by-side `/compare` view. |
-| **Cart with save-for-later** | Persisted cart store supports quantity caps, moving items between cart/wishlist/saved-for-later without a page reload. |
-| **Wishlist** | Server-backed `WishlistItem` model plus an optimistic client store for instant UI feedback. |
-| **Ratings & reviews** | Reviews carry `verifiedPurchase`, `helpfulVotes`, and an optional seller `reply`, matching real marketplace review semantics rather than a flat comment list. |
-| **Coupons** | Server-validated coupon engine (`/api/coupons/validate`) enforcing minimum order value and percentage/flat discount rules. |
-| **Delivery estimation** | Pincode-aware delivery-date calculation with faster ETAs for Prime members (`lib/delivery.ts`). |
-| **Prime membership** | Dedicated `/prime` and `/dashboard/prime` surfaces backed by `isPrime` / `primeExpiresAt` fields on the user model, driving free shipping and delivery-speed logic. |
-| **Shopping assistant** | An in-app chat widget (`/api/ai/chat`) that resolves order-tracking, Prime, return, and comparison intents and surfaces matching catalog products — a deterministic, rules-based assistant rather than a hosted LLM integration. |
+| **Storefront** | 189 demo products across 22 categories (mobiles, laptops, fashion, home & kitchen, grocery, gaming, and more), rendered server-first for fast initial paint. |
+| **Search** | Full-text search across title, brand, and tags, backed by MongoDB with sort (price, rating, discount, newest) and pagination. |
+| **Filtering** | Left-hand filter sidebar for category and customer rating, matching Amazon.in's search results layout. |
+| **Live search suggestions** | Debounced typeahead (`hooks/use-search-suggestions.ts`) backed by `/api/search/suggestions`, with per-user search history. |
+| **Product comparison** | Client-side compare list (Zustand) lets shoppers stage multiple products for a side-by-side `/compare` view. |
+| **Recently viewed** | LocalStorage-backed "recently viewed" rail on both the homepage and product pages. |
+| **Database-backed catalog** | Every storefront page (home, search, product detail) reads from MongoDB via Prisma; a static fallback catalog keeps the UI usable if the database is briefly unavailable. |
+
+### Cart & Wishlist
+
+- Zustand-persisted cart and wishlist so guest shoppers keep their state across a refresh with no account required.
+- On sign-in, the guest cart/wishlist is automatically merged into the signed-in user's database-backed cart (`CartItem`) and wishlist (`WishlistItem`), so nothing is lost.
+- Save-for-later, quantity controls, and coupon application on the cart page.
+- Cart clears automatically after a successful order.
+
+### Checkout & Payments
+
+- **Stripe Checkout Sessions** created server-side, with line items priced in INR directly from the authoritative database product price — never trusted from the client.
+- **Order-first flow**: an `Order` and its `OrderItem`s are persisted *before* redirecting to Stripe, so incomplete or abandoned checkouts remain auditable.
+- **Signature-verified webhook** (`/api/stripe/webhook`) confirms `checkout.session.completed` events and transitions the order to `PAID`.
+- **Saved addresses**: full CRUD for shipping addresses, selectable directly from the checkout flow.
+- **Order lifecycle modeling**: `OrderStatus` spans `PENDING → PAID → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`, plus `CANCELLED` / `RETURNED`.
+- Automatic 18% GST-style tax and free-shipping threshold calculation, consistent across cart and checkout.
+
+### Orders & Reviews
+
+- Real order history (`/dashboard/orders`) pulled from the database, with a proper empty state for new accounts — no placeholder/demo orders are ever fabricated.
+- Authenticated users can submit a star rating, title, and comment on any product; reviews are flagged `verifiedPurchase` automatically when the reviewer has a paid order containing that product.
+- Product rating and review count recalculate from real review data whenever a new review is submitted.
 
 ### Authentication & Security
 
 - **NextAuth.js** configured with Google OAuth, GitHub OAuth, and a Credentials provider backed by `bcryptjs` password hashing, all sharing one Prisma-adapted session store.
-- **JWT sessions** enriched with the user's database role on first sign-in, avoiding a database lookup on every request.
-- **Route-level protection** via `middleware.ts`, gating `/checkout` and every `/dashboard/*` route behind an authenticated session.
+- **JWT sessions** enriched with the user's database role on first sign-in.
+- **Route-level protection** via `middleware.ts`, gating `/checkout`, every `/dashboard/*` route, and every `/admin/*` route behind an authenticated (and, for admin, role-checked) session.
 - **API-level authorization**, independent of the UI: every admin route re-verifies `session.user.role === "ADMIN"` server-side before touching the database.
-- **Input validation with Zod** on registration, checkout, and product-management payloads, rejecting malformed requests before they reach Prisma.
+- **Input validation with Zod** on registration, checkout, cart, review, address, and product-management payloads.
 
-### Admin Platform
+### AI Shopping Assistant
 
-- `/admin` — operational overview.
-- `/admin/products` — catalog CRUD backed by `productSchema`-validated API routes.
-- `/admin/orders` — order status and fulfillment management.
+An in-app chat widget (`/api/ai/chat`) that resolves order-tracking, Prime, return, and comparison questions and surfaces matching catalog products. It is a **deterministic, rules-based assistant** (keyword/intent matching against the real catalog) rather than a hosted LLM integration — this is called out explicitly so the feature isn't mischaracterized.
+
+### Admin Console
+
+- `/admin` — overview with **real database aggregates**: revenue, order count, user count, average order value, a 7-day sales chart, and top-selling products.
+- `/admin/products` — catalog CRUD backed by Zod-validated API routes; changes are immediately reflected on the live storefront.
+- `/admin/orders` — order status management against real orders.
 - `/admin/users` — user account and role administration.
 
-All admin API routes (`app/api/admin/**`) implement a shared `requireAdmin()` guard that rejects any request from a non-admin session with a `403`, regardless of what the client sends.
+All admin API routes (`app/api/admin/**`) implement a shared admin guard that rejects any request from a non-admin session with a `403`, regardless of what the client sends, and `/admin/*` pages themselves are gated server-side in `middleware.ts`.
 
-### Payment System
+### Responsive UI
 
-- **Stripe Checkout Sessions** created server-side, with line items priced in INR (paise) directly from the authoritative product price — never trusted from the client.
-- **Order-first flow**: an `Order` and its `OrderItem`s are persisted *before* redirecting to Stripe, so incomplete or abandoned checkouts remain auditable.
-- **Signature-verified webhooks** (`/api/stripe/webhook`) confirm `checkout.session.completed` events and transition the order to `PAID`, storing the Stripe PaymentIntent ID for reconciliation.
-- **Order lifecycle modeling**: `OrderStatus` spans `PENDING → PAID → PROCESSING → PACKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED`, plus `CANCELLED` / `RETURNED`, with a companion `OrderTimeline` model for status history.
-- **Automatic tax and shipping**: 18% GST-style tax calculation and free-shipping thresholds (or Prime override) computed consistently in both cart and checkout.
-- Schema-level support for multi-provider payments (`STRIPE`, `RAZORPAY`, `PAYPAL`, `COD`), with Stripe as the implemented provider.
+Amazon.in-styled interface (navy/gold header, category strip, product-card density, buy-box layout) built mobile-first with Tailwind CSS, verified across mobile, tablet, and desktop breakpoints, with light/dark theme support via `next-themes`.
 
 ---
 
-## System Architecture
-
-**Frontend** — Next.js App Router with server components for data-heavy pages (home, product listing, product detail) and client components scoped to interactive islands (cart drawer, filters, chat widget). Zustand handles cross-page client state — cart, wishlist, compare list, delivery preferences, search history — with `persist` middleware so state survives a refresh without a server round trip.
-
-**Backend** — Colocated API routes under `app/api/**` handle authentication, catalog access, cart/wishlist mutations, checkout orchestration, coupon validation, delivery checks, and the full admin surface. Every write route validates its payload with Zod before it reaches Prisma.
-
-**Database** — Prisma ORM against MongoDB, modeling 15+ collections (users, accounts, sessions, products, categories, reviews, addresses, cart items, wishlist items, saved-for-later items, coupons, orders, order items, order timeline, payments, notifications, search history) with explicit relations and enums for role and status fields.
-
-**External services** — Stripe for payment processing and webhook-driven order confirmation; Google and GitHub as OAuth identity providers through NextAuth.
-
-```mermaid
-flowchart TD
-    User[Shopper / Admin Browser]
-    User --> App[Next.js App Router]
-
-    App --> API[API Routes Layer]
-    API --> Auth[NextAuth.js<br/>Google · GitHub · Credentials]
-    API --> Validate[Zod Validation]
-    Validate --> Prisma[Prisma ORM]
-    Prisma --> Mongo[(MongoDB Atlas)]
-
-    API --> Checkout[Checkout Route]
-    Checkout --> StripeAPI[Stripe Checkout Session]
-    StripeAPI --> Webhook[Stripe Webhook Handler]
-    Webhook --> Prisma
-
-    App --> ClientState[Zustand Stores<br/>Cart · Wishlist · Compare · Delivery]
-```
-
----
-
-## Technology Stack
+## Tech Stack
 
 | Category | Technologies | Purpose |
 |---|---|---|
 | **Frontend** | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 3 | Server-first rendering, typed components, utility-first styling |
-| **UI & Interaction** | Framer Motion, lucide-react, next-themes, sonner, react-spinners | Animation, iconography, light/dark theming, toast notifications, loading states |
+| **UI & Interaction** | Framer Motion, lucide-react, next-themes, sonner | Animation, iconography, light/dark theming, toast notifications |
 | **State Management** | Zustand (with `persist` middleware) | Client-side cart, wishlist, compare list, delivery, and search-history stores |
-| **Backend** | Next.js Route Handlers (API Routes) | Authentication, catalog, cart, checkout, coupon, delivery, and admin endpoints |
-| **Validation** | Zod | Schema validation for auth, cart, checkout, and product-management payloads |
+| **Backend** | Next.js Route Handlers (API Routes) | Authentication, catalog, cart, checkout, coupon, delivery, review, address, and admin endpoints |
+| **Validation** | Zod | Schema validation at every write-route boundary |
 | **Authentication** | NextAuth.js 4, `@next-auth/prisma-adapter`, bcryptjs | OAuth (Google, GitHub) + credentials auth with hashed passwords and JWT sessions |
 | **Database & ORM** | MongoDB Atlas, Prisma 6 | Document persistence with a typed, relational-style schema |
 | **Payments** | Stripe (Checkout Sessions, Webhooks, `@stripe/stripe-js`) | Hosted checkout, payment confirmation, order reconciliation |
@@ -150,51 +147,54 @@ flowchart TD
 ```
 amazon-clone-nextjs/
 ├── app/
-│   ├── api/                 # Route handlers: auth, products, cart, checkout,
-│   │                         # orders, wishlist, coupons, delivery, search, admin, ai
-│   ├── admin/                # Admin console: overview, products, orders, users
-│   ├── dashboard/             # Authenticated user area: profile, addresses,
-│   │                          # orders, wishlist, payments, notifications, security, prime
-│   ├── products/[slug]/      # Product detail pages
-│   ├── cart/, checkout/      # Cart and checkout flow (checkout/success on completion)
-│   ├── search/, compare/     # Search results and product comparison
+│   ├── api/                  # Route handlers: auth, products, cart, checkout, orders,
+│   │                         #   wishlist, reviews, addresses, coupons, delivery, search, admin, ai
+│   ├── admin/                 # Admin console: overview, products, orders, users
+│   ├── dashboard/              # Authenticated user area: profile, addresses, orders,
+│   │                          #   wishlist, payments, notifications, security, prime
+│   ├── products/[slug]/       # Product detail pages
+│   ├── cart/, checkout/       # Cart and checkout flow (checkout/success on completion)
+│   ├── search/, compare/      # Search results and product comparison
 │   ├── login/, signup/, forgot-password/
-│   ├── prime/                 # Prime membership landing page
-│   └── layout.tsx, page.tsx   # Root layout and homepage
+│   ├── prime/                  # Prime membership landing page
+│   ├── icon.svg, manifest.ts   # Favicon and web app manifest
+│   ├── not-found.tsx, error.tsx
+│   └── layout.tsx, page.tsx    # Root layout and homepage
 │
 ├── components/
-│   ├── admin/                 # Admin console UI (product/order/user tables & forms)
-│   ├── ai/                    # Shopping-assistant chat widget
-│   ├── auth/                  # Sign-in / sign-up forms
-│   ├── cart/                  # Cart drawer, line items, coupon input
-│   ├── dashboard/              # User-account UI
-│   ├── home/                  # Hero, category grid, product rails
-│   ├── layout/                # Header, navigation, footer
-│   ├── product/                # Product card, gallery, reviews, compare tray
-│   ├── providers/              # Zustand stores + app-level context providers
-│   └── ui/                    # Shared primitives (buttons, inputs, dialogs, etc.)
+│   ├── admin/                  # Admin console UI (product/order/user tables & forms)
+│   ├── ai/                     # Shopping-assistant chat widget
+│   ├── auth/                   # Sign-in / sign-up forms
+│   ├── cart/                   # Cart view, checkout form
+│   ├── dashboard/               # User-account UI, address manager
+│   ├── home/                   # Hero, category grid, product rails
+│   ├── layout/                 # Navbar, search bar, footer
+│   ├── product/                 # Product card, gallery, reviews, search sidebar
+│   ├── providers/               # Zustand stores + app-level context providers
+│   └── ui/                     # Shared primitives (buttons, badges, ratings, etc.)
 │
-├── hooks/                     # use-debounce, use-local-storage, use-search-suggestions
+├── hooks/                      # use-debounce, use-local-storage, use-search-suggestions
 │
 ├── lib/
-│   ├── auth.ts                 # NextAuth configuration
-│   ├── prisma.ts               # Prisma client singleton
-│   ├── stripe.ts               # Stripe client singleton
-│   ├── data.ts                 # Seed/demo catalog and homepage content
-│   ├── products.ts             # Catalog lookup helpers
-│   ├── delivery.ts             # Tax, shipping, coupon, and ETA calculations
-│   ├── validators.ts           # Zod schemas
-│   └── utils.ts, design-tokens.ts, recentlyViewed.ts
+│   ├── auth.ts                  # NextAuth configuration
+│   ├── prisma.ts                # Prisma client singleton
+│   ├── stripe.ts                # Stripe client singleton
+│   ├── data.ts                  # Seed/demo catalog (189 products) and homepage content
+│   ├── products.ts              # Database-backed catalog queries with static fallback
+│   ├── reviews.ts                # Review queries
+│   ├── delivery.ts               # Tax, shipping, coupon, and ETA calculations
+│   ├── validators.ts             # Zod schemas
+│   └── utils.ts, serialize-product.ts, db-fallback.ts, recentlyViewed.ts
 │
 ├── prisma/
-│   └── schema.prisma           # Full data model (User, Product, Order, Payment, etc.)
+│   └── schema.prisma             # Full data model (User, Product, Order, Payment, etc.)
 │
 ├── scripts/
-│   └── seed.ts                 # Seeds an admin, a customer, the catalog, and a sample order
+│   └── seed.ts                   # Seeds an admin, a customer, the catalog, and a sample order
 │
-├── types/                      # Shared TypeScript types, NextAuth session augmentation
-├── middleware.ts                # Route protection for /checkout and /dashboard/*
-└── public/screenshots/          # README screenshots
+├── types/                        # Shared TypeScript types, NextAuth session augmentation
+├── middleware.ts                  # Route protection for /checkout, /dashboard/*, /admin/*
+└── public/products/, public/hero/ # Product and hero imagery
 ```
 
 ---
@@ -205,7 +205,7 @@ amazon-clone-nextjs/
 
 - **Node.js** 18.18+ (Next.js 15 / React 19 baseline)
 - **npm** 9+
-- A **MongoDB** database (local `mongod` or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster)
+- A **MongoDB** database (local `mongod`/Docker, or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster). Prisma's MongoDB connector requires the database to be configured as a replica set (Atlas clusters already are).
 - A **Stripe** account (test-mode keys are sufficient for local development)
 - (Optional) **Google** and **GitHub** OAuth apps for social login
 
@@ -219,13 +219,15 @@ npm install
 
 ### Environment Setup
 
-Create a `.env` file at the project root using `.env.example` as a reference:
+Copy `.env.example` to `.env.local` and fill in real values:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Fill in the values described in [Environment Variables](#environment-variables) below.
+> The Prisma CLI (`prisma generate`, `db push`) reads a plain `.env` file rather than `.env.local` — that's a Next.js-only convention. If you run Prisma CLI commands directly, also copy your `DATABASE_URL` into a `.env` file. Both files are git-ignored.
+
+See [Environment Variables](#environment-variables) below for what each value does.
 
 ### Database Setup
 
@@ -242,15 +244,33 @@ Seeded accounts (from `scripts/seed.ts`):
 | Admin | `admin@example.com` | `Admin@123` |
 | Customer | `customer@example.com` | `User@123` |
 
+> Change or remove these before deploying anywhere publicly reachable.
+
 ### Running the Application
 
 ```bash
-npm run dev        # Start the development server at http://localhost:3000
-npm run build       # Production build (runs `prisma generate` first)
-npm run start        # Serve the production build
-npm run lint          # ESLint
-npm run typecheck      # TypeScript, no emit
+npm run dev         # Start the development server at http://localhost:3000
+npm run build         # Production build (runs `prisma generate` first)
+npm run start          # Serve the production build
 ```
+
+---
+
+## npm Scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the local dev server with hot reload |
+| `npm run build` | Generate the Prisma client and create a production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
+| `npm run typecheck` | Run the TypeScript compiler with no emit |
+| `npm run prisma:generate` | Regenerate the Prisma client |
+| `npm run prisma:studio` | Open Prisma Studio to inspect/edit data visually |
+| `npm run db:push` | Push `prisma/schema.prisma` to the connected database |
+| `npm run db:seed` | Run the seed script (admin, demo customer, catalog, sample order) |
+
+Recommended before opening a pull request: `npm run lint && npm run typecheck && npm run build`.
 
 ---
 
@@ -266,9 +286,9 @@ npm run typecheck      # TypeScript, no emit
 | `STRIPE_SECRET_KEY` | Yes (for checkout) | Server-side Stripe API key used to create Checkout Sessions |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes (for checkout) | Client-side Stripe publishable key |
 | `STRIPE_WEBHOOK_SECRET` | Yes (for order confirmation) | Verifies the authenticity of incoming Stripe webhook events |
-| `NEXT_PUBLIC_APP_URL` | Yes | Absolute app URL used to build Stripe success/cancel redirect links |
+| `NEXT_PUBLIC_APP_URL` | Yes | Absolute app URL used for metadata and Stripe redirect links |
 
-> Without OAuth credentials, the app falls back to placeholder values and email/password authentication continues to work.
+> Without OAuth credentials, the app falls back to placeholder values and email/password authentication continues to work. **Never commit real values** — `.env` and `.env.local` are git-ignored; only `.env.example` (placeholders only) is tracked.
 
 ---
 
@@ -279,23 +299,26 @@ npm run typecheck      # TypeScript, no emit
 | `/api/auth/register` | POST | Create a new credentials-based account | Public |
 | `/api/auth/[...nextauth]` | GET/POST | NextAuth sign-in, callback, and session routes | Public |
 | `/api/products` | GET | List/filter the product catalog | Public |
-| `/api/products/[id]` | GET | Fetch a single product | Public |
+| `/api/products/[id]` | GET | Fetch a single product with reviews | Public |
 | `/api/search/suggestions` | GET | Live search suggestions | Public |
 | `/api/delivery/check` | GET | Pincode serviceability and ETA | Public |
 | `/api/coupons/validate` | POST | Validate a coupon code against order subtotal | Session |
-| `/api/cart` | GET/POST/PATCH/DELETE | Read and mutate the signed-in user's cart | Session |
+| `/api/cart` | GET/POST/DELETE | Read and mutate the signed-in user's cart | Session |
 | `/api/wishlist` | GET/POST/DELETE | Read and mutate the signed-in user's wishlist | Session |
+| `/api/addresses` | GET/POST | List and add saved shipping addresses | Session |
+| `/api/addresses/[id]` | PATCH/DELETE | Update or remove a saved address | Session |
+| `/api/reviews` | GET/POST | Read/submit product reviews | Public (GET) / Session (POST) |
 | `/api/checkout` | POST | Create an order and a Stripe Checkout Session | Session |
 | `/api/orders` | GET | List the signed-in user's orders | Session |
 | `/api/stripe/webhook` | POST | Stripe webhook receiver; confirms payment and updates order status | Stripe signature |
 | `/api/ai/chat` | POST | Rules-based shopping assistant (FAQ + catalog matching) | Public |
-| `/api/ai/recommendations` | GET | Trending / deals / Prime / personalized product surfacing | Public |
+| `/api/ai/recommendations` | GET | Trending / deals / Prime product surfacing | Public |
 | `/api/admin/products` | GET/POST | List and create catalog products | Admin |
 | `/api/admin/products/[id]` | PATCH/DELETE | Update or remove a product | Admin |
 | `/api/admin/orders` | GET | List all orders | Admin |
 | `/api/admin/orders/[id]` | PATCH | Update order status | Admin |
 | `/api/admin/users` | GET | List all users | Admin |
-| `/api/admin/users/[id]` | PATCH | Update a user's role or ban status | Admin |
+| `/api/admin/users/[id]` | PATCH | Update a user's role | Admin |
 
 ---
 
@@ -303,12 +326,12 @@ npm run typecheck      # TypeScript, no emit
 
 The schema is defined in `prisma/schema.prisma` and deployed to MongoDB. Core entities:
 
-- **User** — authentication identity, role (`USER` / `ADMIN`), Prime status, and relations to every downstream entity (orders, reviews, cart, wishlist, addresses, notifications, payments, search history).
-- **Product** — catalog entry with pricing (`price`, `mrp`, `discount`), inventory (`stock`), merchandising flags (`isFeatured`, `isSponsored`, `isFlashDeal`), and free-form `specifications` (JSON).
+- **User** — authentication identity, role (`USER` / `ADMIN`), Prime status, and relations to every downstream entity (orders, reviews, cart, wishlist, addresses, payments, search history).
+- **Product** — catalog entry with pricing (`price`, `mrp`, `discount`), inventory (`stock`), merchandising flags (`isFeatured`, `isSponsored`, `isFlashDeal`), and free-form `specifications` (JSON). Category is a plain string field on `Product`, not a relation.
 - **Order / OrderItem / OrderTimeline** — an order snapshot with denormalized item data (title, image, price at time of purchase) plus a status-change timeline, decoupled from the live product record.
-- **Review** — linked to both `User` and `Product`, with verified-purchase flagging and a seller `reply`.
-- **Category** — self-referential tree (`parent` / `children`) for nested category navigation.
-- **Coupon / Payment / Notification / SearchHistory** — supporting entities for promotions, payment auditing, in-app notifications, and personalization signals.
+- **Review** — linked to both `User` and `Product`, with verified-purchase flagging computed from real order history.
+- **Address** — saved shipping addresses per user, with a default-address flag.
+- **Coupon / Payment / SearchHistory** — supporting entities for promotions, payment auditing, and personalization signals.
 
 ```mermaid
 erDiagram
@@ -322,58 +345,13 @@ erDiagram
     PRODUCT ||--o{ CART_ITEM : "added as"
     ORDER ||--o{ ORDER_ITEM : contains
     ORDER ||--o{ ORDER_TIMELINE : tracks
-    CATEGORY ||--o{ CATEGORY : "parent of"
 ```
-
----
-
-## Application Flow
-
-**Shopping flow**
-Browse or search catalog → view product detail → add to cart / wishlist / compare → review cart (coupons, saved items) → sign in if needed → checkout.
-
-**Checkout flow**
-Authenticated request hits `/api/checkout` → server prices the order from the database (never the client) → `Order` + `OrderItem`s persisted as `PENDING` → Stripe Checkout Session created → user redirected to Stripe → on success, Stripe fires `checkout.session.completed` → webhook verifies the signature and marks the order `PAID`.
-
-**Authentication flow**
-User signs in via Google, GitHub, or email/password → NextAuth issues a JWT session enriched with the user's role → `middleware.ts` gates `/checkout` and `/dashboard/*` on session presence → admin API routes independently re-check `role === "ADMIN"`.
-
-**Admin workflow**
-Admin signs in → `/admin` surfaces orders, products, and users → product/order/user mutations go through Zod-validated, role-guarded API routes → changes are immediately reflected in the storefront and customer dashboards.
-
----
-
-## Engineering Decisions
-
-**Why Next.js App Router?** Colocating server components, client islands, and API route handlers in one project removes the need for a separate backend service for a project of this scope, while still keeping a clear boundary between server-only logic (Stripe secret key, Prisma access) and client bundles.
-
-**Why Prisma over a raw MongoDB driver?** A typed schema and generated client catch shape mismatches (e.g., a checkout payload missing a required address field) at compile time rather than at runtime in production, and the same schema documents the entire data model in one file.
-
-**Why MongoDB?** The catalog and order documents are naturally hierarchical (an order embeds shipping details, references line items, and accumulates a timeline) and benefit from MongoDB's flexible document shape, particularly for the `specifications: Json?` field on `Product`, without giving up relational integrity — Prisma still enforces typed relations on top of it.
-
-**Why Zustand over Redux/Context for client state?** Cart, wishlist, compare, and delivery preferences are read and written far more often on the client than they need to touch the server. Zustand's minimal API and `persist` middleware keep that state fast and durable across reloads without Redux's boilerplate or the re-render cost of a naive Context implementation.
-
-**Why validate with Zod at the API boundary?** Every write route (`checkout`, `cart`, `products`, `register`) parses its input with a Zod schema before it reaches Prisma, so malformed or malicious payloads are rejected with a clear error instead of causing a downstream database error.
-
----
-
-## Development Workflow
-
-```bash
-npm run dev         # Local development with hot reload
-npm run lint          # ESLint (next/core-web-vitals + TypeScript rules)
-npm run typecheck      # Full TypeScript project check, no output emitted
-npm run prisma:studio   # Prisma Studio — inspect and edit data visually
-npm run build           # Production build (runs prisma generate first)
-```
-
-Recommended before opening a pull request: `npm run lint && npm run typecheck && npm run build`.
 
 ---
 
 ## Deployment Guide
 
-1. **Database** — Provision a MongoDB Atlas cluster, whitelist your deployment platform's egress IPs (or allow all for serverless platforms), and set `DATABASE_URL`.
+1. **Database** — Provision a MongoDB Atlas cluster (already a replica set), whitelist your deployment platform's egress IPs (or allow all for serverless platforms), and set `DATABASE_URL`.
 2. **Stripe** — Switch to live-mode keys for `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, and register a production webhook endpoint (`/api/stripe/webhook`) in the Stripe dashboard to obtain `STRIPE_WEBHOOK_SECRET`.
 3. **Auth** — Update the OAuth redirect URIs registered with Google/GitHub to match the production domain, and set `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` accordingly.
 4. **Hosting** — Deploy to [Vercel](https://vercel.com/) (first-class Next.js support, zero-config App Router builds) or any Node-compatible platform that can run `npm run build && npm run start`.
@@ -381,15 +359,22 @@ Recommended before opening a pull request: `npm run lint && npm run typecheck &&
 
 ---
 
-## Roadmap
+## Future Improvements
 
 - AI-assisted product recommendations backed by a hosted LLM, replacing the current rules-based assistant
 - Personalized "for you" ranking based on browsing and purchase history
-- Advanced analytics dashboard for admins (conversion funnels, cohort retention)
+- Advanced analytics (conversion funnels, cohort retention)
 - Inventory and low-stock alerting
-- Full-text/faceted search optimization (e.g., a dedicated search index)
-- Multi-warehouse fulfillment and split shipments
+- Dedicated full-text/faceted search index
 - Automated test coverage (unit + end-to-end) and CI pipeline
+
+---
+
+## Third-Party Attribution
+
+- **Product and hero imagery** is sourced from [Unsplash](https://unsplash.com/), used under the [Unsplash License](https://unsplash.com/license) (free for commercial and non-commercial use). Images are generic stock photography for demonstration purposes and are not official product photography.
+- **"Amazon" and related trademarks** belong to Amazon.com, Inc. This project references them descriptively to explain what its UI is styled after; see the [disclaimer](#-educational-project-disclaimer) above.
+- Built with open-source software including Next.js, React, Prisma, Tailwind CSS, NextAuth.js, Zustand, and other packages listed in `package.json`, each under its own license.
 
 ---
 
@@ -409,7 +394,7 @@ Please open an issue first for significant changes so the approach can be discus
 
 ## License
 
-This project does not currently ship a `LICENSE` file. Until one is added, all rights are reserved by the author; if you intend to reuse this code, please open an issue or contact the maintainer to clarify terms (an MIT license is recommended for open-source use).
+Released under the [MIT License](LICENSE). The MIT license covers this project's own source code only — it does not grant any rights to Amazon's trademarks, brand assets, or the stock photography referenced above (see [Third-Party Attribution](#third-party-attribution)).
 
 ---
 
@@ -419,5 +404,3 @@ This project does not currently ship a `LICENSE` file. Until one is added, all r
 
 [![GitHub](https://img.shields.io/badge/GitHub-tanmaytyagii-181717?logo=github&logoColor=white)](https://github.com/tanmaytyagii)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-tyagitanmay-0A66C2?logo=linkedin&logoColor=white)](https://linkedin.com/in/tyagitanmay/)
-
-</div>

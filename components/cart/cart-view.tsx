@@ -53,12 +53,14 @@ export function CartView() {
   }
 
   return (
-    <div className="amazon-section grid gap-6 lg:grid-cols-[1fr_340px]">
-      <section className="amazon-card">
-        <h1 className="text-2xl font-bold">Shopping Cart</h1>
-        <p className="text-sm text-slate-500">Price</p>
+    <div className="mx-auto max-w-[1500px] grid gap-4 px-3 py-4 sm:px-4 lg:grid-cols-[1fr_320px]">
+      <section className="rounded border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900 sm:p-5">
+        <div className="flex items-baseline justify-between border-b border-slate-200 pb-3 dark:border-white/10">
+          <h1 className="text-2xl font-medium text-slate-950 dark:text-white">Shopping Cart</h1>
+          <span className="hidden text-sm text-slate-500 sm:inline">Price</span>
+        </div>
 
-        <div className="mt-4 divide-y divide-slate-200 dark:divide-white/10">
+        <div className="divide-y divide-slate-200 dark:divide-white/10">
           {items.map(({ product, quantity }) => (
             <article key={product.id} className="flex flex-col gap-4 py-5 sm:flex-row sm:justify-between">
               <div className="flex gap-4">
@@ -71,12 +73,12 @@ export function CartView() {
                   </Link>
                   <p className="mt-1 text-xs text-amazon-green">In stock</p>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <div className="inline-flex h-9 items-center rounded-lg border border-slate-200 dark:border-white/10">
-                      <button type="button" onClick={() => updateQuantity(product.id, quantity - 1)} className="px-3" aria-label="Decrease">
+                    <div className="inline-flex h-8 items-center rounded border border-slate-300 dark:border-white/10">
+                      <button type="button" onClick={() => updateQuantity(product.id, quantity - 1)} className="px-2.5 hover:bg-slate-50 dark:hover:bg-white/10" aria-label="Decrease">
                         <Minus className="h-3 w-3" />
                       </button>
                       <span className="min-w-8 text-center text-sm font-bold">{quantity}</span>
-                      <button type="button" onClick={() => updateQuantity(product.id, quantity + 1)} className="px-3" aria-label="Increase">
+                      <button type="button" onClick={() => updateQuantity(product.id, quantity + 1)} className="px-2.5 hover:bg-slate-50 dark:hover:bg-white/10" aria-label="Increase">
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
@@ -130,8 +132,11 @@ export function CartView() {
         )}
       </section>
 
-      <aside className="amazon-card h-fit">
-        <h2 className="text-lg font-bold">Subtotal ({items.reduce((n, i) => n + i.quantity, 0)} items)</h2>
+      <aside className="h-fit rounded border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900 lg:sticky lg:top-20">
+        <h2 className="text-lg">
+          Subtotal ({items.reduce((n, i) => n + i.quantity, 0)} items):{" "}
+          <span className="font-bold text-slate-950 dark:text-white">{formatPrice(subtotal)}</span>
+        </h2>
         <div className="mt-4 flex gap-2">
           <input
             value={couponInput}
@@ -144,10 +149,6 @@ export function CartView() {
           </Button>
         </div>
         <div className="mt-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Items</span>
-            <strong>{formatPrice(subtotal)}</strong>
-          </div>
           {couponDiscount > 0 && (
             <div className="flex justify-between text-amazon-green">
               <span>Coupon</span>

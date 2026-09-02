@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { useSearchHistoryStore } from "@/components/providers/search-history-store";
 import { useSearchSuggestions } from "@/hooks/use-search-suggestions";
+import { categories } from "@/lib/data";
 import { trendingSearches } from "@/lib/design-tokens";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ type SearchBarProps = {
 export function SearchBar({ className, initialQuery = "", compact = false }: SearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
+  const [category, setCategory] = useState("All");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,10 +50,13 @@ export function SearchBar({ className, initialQuery = "", compact = false }: Sea
 
   function navigateToSearch(q: string) {
     const trimmed = q.trim();
-    if (!trimmed) return;
-    addHistory(trimmed);
+    if (!trimmed && category === "All") return;
+    if (trimmed) addHistory(trimmed);
     setOpen(false);
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+    const params = new URLSearchParams();
+    if (trimmed) params.set("q", trimmed);
+    if (category !== "All") params.set("category", category);
+    router.push(`/search${params.toString() ? `?${params.toString()}` : ""}`);
   }
 
   function onSubmit(event: FormEvent) {
@@ -87,11 +92,27 @@ export function SearchBar({ className, initialQuery = "", compact = false }: Sea
 
   return (
     <div ref={containerRef} className={cn("relative flex-1", className)}>
-      <form onSubmit={onSubmit} className="flex overflow-hidden rounded-md border-2 border-transparent bg-white focus-within:border-amazon-orange">
+      <form onSubmit={onSubmit} className="flex h-10 overflow-hidden rounded-[4px] border-2 border-transparent bg-white focus-within:border-amazon-orange">
         {!compact && (
-          <label className="sr-only" htmlFor="search-category">
-            Category
-          </label>
+          <>
+            <label className="sr-only" htmlFor="search-category">
+              Category
+            </label>
+            <select
+              id="search-category"
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+              className="hidden w-16 shrink-0 cursor-pointer border-r border-slate-300 bg-slate-100 px-1.5 text-xs text-slate-600 outline-none hover:bg-slate-200 sm:block md:w-28 md:px-2 md:text-sm"
+              aria-label="Search category"
+            >
+              <option value="All">All</option>
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </>
         )}
         <input
           id="amazon-search"
@@ -104,7 +125,7 @@ export function SearchBar({ className, initialQuery = "", compact = false }: Sea
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder="Search Amazon.in"
-          className={cn("min-w-0 flex-1 text-slate-950 outline-none", compact ? "px-3 py-2 text-sm" : "px-4 py-2.5")}
+          className={cn("min-w-0 flex-1 text-slate-950 outline-none", compact ? "px-3 text-sm" : "px-3 text-sm md:text-[15px]")}
           aria-label="Search products"
           aria-expanded={!!showPanel}
           aria-controls="search-suggestions"

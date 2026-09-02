@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { logDbFallback } from "@/lib/db-fallback";
 import { prisma } from "@/lib/prisma";
 import { getProductById } from "@/lib/products";
 
@@ -23,9 +24,9 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     }
 
     return NextResponse.json(product);
-  } catch (error) {
-    console.warn("PRODUCT_DB_FALLBACK", error);
-    const product = getProductById(id);
+  } catch {
+    logDbFallback("api/products/[id]");
+    const product = await getProductById(id);
 
     if (!product) {
       return NextResponse.json({ message: "Product not found." }, { status: 404 });

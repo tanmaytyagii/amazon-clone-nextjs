@@ -3,12 +3,11 @@
 import { useState } from "react";
 
 import { ProductReviews } from "@/components/product/product-reviews";
-import { Rating } from "@/components/ui/rating";
-import type { Product } from "@/types";
+import type { Product, ReviewItem } from "@/types";
 
 const tabs = ["Description", "Specifications", "Reviews", "Q&A"] as const;
 
-export function ProductTabs({ product }: { product: Product }) {
+export function ProductTabs({ product, reviews }: { product: Product; reviews: ReviewItem[] }) {
   const [active, setActive] = useState<(typeof tabs)[number]>("Description");
 
   const specs: Record<string, string> = product.specifications ?? {
@@ -20,7 +19,7 @@ export function ProductTabs({ product }: { product: Product }) {
   };
 
   return (
-    <section className="mt-12 border-t border-slate-200 pt-8 dark:border-white/10">
+    <section>
       <div className="flex gap-0 overflow-x-auto border-b border-slate-200 dark:border-white/10 no-scrollbar">
         {tabs.map((tab) => (
           <button
@@ -63,7 +62,7 @@ export function ProductTabs({ product }: { product: Product }) {
           </table>
         )}
 
-        {active === "Reviews" && <ProductReviews product={product} />}
+        {active === "Reviews" && <ProductReviews product={product} initialReviews={reviews} />}
 
         {active === "Q&A" && (
           <div className="space-y-4">

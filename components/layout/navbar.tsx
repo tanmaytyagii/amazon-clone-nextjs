@@ -37,7 +37,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-amazon-navy text-white shadow-sticky transition-shadow">
-      <div className="mx-auto flex max-w-[1500px] items-center gap-2 px-2 py-1.5 sm:gap-3 sm:px-3">
+      <div className="mx-auto flex max-w-[1500px] items-center gap-2 px-2 py-2.5 sm:gap-3 sm:px-3">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
@@ -48,8 +48,8 @@ export function Navbar() {
         </button>
 
         <Link href="/" className="flex shrink-0 items-end border border-transparent px-1 py-1 hover:border-white" aria-label="Amazon.in home">
-          <span className="text-xl font-bold tracking-tight sm:text-2xl">amazon</span>
-          <span className="mb-0.5 text-xs font-bold text-amazon-gold sm:text-sm">.in</span>
+          <span className="text-2xl font-extrabold tracking-tight sm:text-[28px]">amazon</span>
+          <span className="mb-1 text-xs font-bold text-amazon-gold sm:text-sm">.in</span>
         </Link>
 
         <div className="relative hidden lg:block">

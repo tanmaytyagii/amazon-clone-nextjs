@@ -1,6 +1,8 @@
 import { CheckCircle2, PackageCheck } from "lucide-react";
 import Link from "next/link";
 
+import { ClearCartOnSuccess } from "@/components/cart/clear-cart-on-success";
+
 export const metadata = {
   title: "Order Success"
 };
@@ -14,7 +16,8 @@ export default async function CheckoutSuccessPage({
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-16">
-      <div className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-glow dark:border-white/10 dark:bg-slate-900">
+      <ClearCartOnSuccess />
+      <div className="rounded border border-slate-200 bg-white p-8 text-center shadow-card dark:border-white/10 dark:bg-slate-900">
         <CheckCircle2 className="mx-auto h-16 w-16 text-amazon-green" />
         <h1 className="mt-5 text-3xl font-black tracking-normal text-slate-950 dark:text-white">Order placed successfully</h1>
         <p className="mt-3 text-slate-600 dark:text-slate-300">

@@ -1,3 +1,4 @@
+import { PackageSearch } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,9 +6,10 @@ import Link from "next/link";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { authOptions } from "@/lib/auth";
-import { products } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Order History"
@@ -43,36 +45,28 @@ export default async function OrdersPage() {
   }
 
   const orders = await getOrders(session.user.id);
-  const demoOrder = {
-    id: "demo-order",
-    status: "DELIVERED",
-    paymentStatus: "PAID",
-    total: products[0].price + products[2].price,
-    createdAt: new Date("2026-05-07"),
-    items: [
-      {
-        id: "demo-item-1",
-        title: products[0].title,
-        image: products[0].images[0],
-        quantity: 1,
-        price: products[0].price
-      },
-      {
-        id: "demo-item-2",
-        title: products[2].title,
-        image: products[2].images[0],
-        quantity: 1,
-        price: products[2].price
-      }
-    ]
-  };
-  type OrderView = typeof demoOrder;
-  const visibleOrders: OrderView[] = orders.length > 0 ? (orders as OrderView[]) : [demoOrder];
+
+  if (orders.length === 0) {
+    return (
+      <DashboardShell title="Orders">
+        <div className="rounded-lg border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-white/10 dark:bg-slate-900">
+          <PackageSearch className="mx-auto h-12 w-12 text-slate-400" />
+          <h2 className="mt-4 text-2xl font-black tracking-normal">No orders yet</h2>
+          <p className="mt-2 text-slate-600 dark:text-slate-300">When you place an order, it will show up here.</p>
+          <Link href="/search" className="mt-5 inline-flex h-11 items-center rounded-md bg-amazon-gold px-5 text-sm font-bold text-slate-950">
+            Start shopping
+          </Link>
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  type OrderView = (typeof orders)[number];
 
   return (
     <DashboardShell title="Orders">
       <div className="space-y-5">
-        {visibleOrders.map((order: OrderView) => (
+        {orders.map((order: OrderView) => (
           <article key={order.id} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
             <div className="grid gap-3 bg-slate-100 px-5 py-4 text-sm dark:bg-white/10 sm:grid-cols-4">
               <div>

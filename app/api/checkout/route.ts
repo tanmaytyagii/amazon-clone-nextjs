@@ -25,9 +25,9 @@ export async function POST(request: Request) {
   const catalogProducts =
     dbProducts.length > 0
       ? dbProducts
-      : payload.items
-          .map((item) => getProductById(item.productId))
-          .filter((product): product is NonNullable<typeof product> => Boolean(product));
+      : (
+          await Promise.all(payload.items.map((item) => getProductById(item.productId)))
+        ).filter((product): product is NonNullable<typeof product> => Boolean(product));
 
   const orderItems = payload.items.map((item) => {
     const product = catalogProducts.find((entry) => entry.id === item.productId);

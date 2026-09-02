@@ -1,48 +1,30 @@
-import { ShieldCheck, Sparkles, Truck, WalletCards } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
-const items = [
-  {
-    icon: Truck,
-    title: "Tomorrow delivery",
-    copy: "Prime-style fulfilment cues across the buying journey."
-  },
-  {
-    icon: WalletCards,
-    title: "Stripe checkout",
-    copy: "Secure card payments with order metadata and webhook updates."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Protected orders",
-    copy: "Order states, payment status, and admin visibility."
-  },
-  {
-    icon: Sparkles,
-    title: "Premium browsing",
-    copy: "Animated carousel, filters, wishlist, and dark mode."
-  }
-];
+const perks = ["Unlimited FREE fast delivery", "Prime Video included", "Early access to deals", "Cancel anytime"];
 
 export function PrimePanel() {
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-5">
-      <div className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft dark:border-white/10 dark:bg-slate-900 lg:grid-cols-[1fr_1.4fr]">
-        <div className="bg-amazon-navy p-6 text-white sm:p-8">
-          <p className="mb-3 text-sm font-black uppercase text-amazon-gold">Prime inspired</p>
-          <h2 className="text-3xl font-black tracking-normal">A polished marketplace stack, not just a storefront mockup.</h2>
-          <p className="mt-4 text-sm leading-6 text-slate-200">
-            The experience includes cart persistence, auth-aware routes, admin management, seed data, Prisma models, and Stripe-ready checkout.
-          </p>
+    <section className="amazon-section">
+      <div className="flex flex-col gap-4 rounded border border-slate-200 bg-gradient-to-r from-[#0d2b45] to-[#146eb4] p-5 text-white shadow-card dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+        <div>
+          <p className="text-2xl font-black italic tracking-tight text-amazon-gold">prime</p>
+          <h2 className="mt-1 text-xl font-bold sm:text-2xl">Fast, FREE delivery on eligible orders</h2>
+          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-slate-100">
+            {perks.map((perk) => (
+              <li key={perk} className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-amazon-gold" />
+                {perk}
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="grid gap-0 sm:grid-cols-2">
-          {items.map((item) => (
-            <div key={item.title} className="border-b border-slate-200 p-6 sm:[&:nth-child(3)]:border-b-0 last:border-b-0 sm:odd:border-r dark:border-white/10">
-              <item.icon className="h-7 w-7 text-amazon-teal" />
-              <h3 className="mt-4 font-bold text-slate-950 dark:text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.copy}</p>
-            </div>
-          ))}
-        </div>
+        <Link
+          href="/prime"
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-[4px] bg-amazon-gold px-5 text-sm font-bold text-slate-950 shadow-sm hover:bg-[#f5c078]"
+        >
+          Try Prime free
+        </Link>
       </div>
     </section>
   );

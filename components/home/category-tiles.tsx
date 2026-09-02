@@ -1,25 +1,57 @@
-import { ArrowRight, Cpu, Dumbbell, Home, Laptop, Palette, Shirt, ShoppingBasket, Smartphone, Sparkles, WashingMachine } from "lucide-react";
+import {
+  ArrowRight,
+  Armchair,
+  Book,
+  Camera,
+  Car,
+  Cpu,
+  Dumbbell,
+  Footprints,
+  Gamepad2,
+  Headphones,
+  Home,
+  Laptop,
+  PawPrint,
+  PenTool,
+  Puzzle,
+  Shirt,
+  ShoppingBasket,
+  Smartphone,
+  Sparkles,
+  Tv,
+  WashingMachine,
+  Watch
+} from "lucide-react";
 import Link from "next/link";
 
-import { SectionHeading } from "@/components/ui/section-heading";
-
 const categoryIcons = {
-  Mobiles: Smartphone,
-  Electronics: Laptop,
-  Fashion: Shirt,
+  "Mobiles & Accessories": Smartphone,
+  "Laptops & Computers": Laptop,
+  Electronics: Cpu,
+  "Headphones & Audio": Headphones,
+  TVs: Tv,
+  Cameras: Camera,
+  Watches: Watch,
+  "Men's Fashion": Shirt,
+  "Women's Fashion": Shirt,
+  Shoes: Footprints,
   "Home & Kitchen": Home,
-  Beauty: Sparkles,
-  Books: Palette,
+  Furniture: Armchair,
+  "Beauty & Personal Care": Sparkles,
   Grocery: ShoppingBasket,
+  "Sports & Fitness": Dumbbell,
+  Books: Book,
+  "Toys & Games": Puzzle,
+  Gaming: Gamepad2,
+  "Office & Stationery": PenTool,
   Appliances: WashingMachine,
-  Toys: Cpu,
-  Sports: Dumbbell
+  Automotive: Car,
+  "Pet Supplies": PawPrint
 };
 
 export function CategoryTiles({ categories }: { categories: string[] }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-5">
-      <SectionHeading title="Shop by category" subtitle="Fast paths into the aisles Indian shoppers browse most." />
+    <section>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {categories.map((category) => {
           const Icon = categoryIcons[category as keyof typeof categoryIcons] ?? Sparkles;
@@ -28,13 +60,16 @@ export function CategoryTiles({ categories }: { categories: string[] }) {
             <Link
               key={category}
               href={`/search?category=${encodeURIComponent(category)}`}
-              className="group flex min-h-28 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-amazon-orange hover:shadow-soft dark:border-white/10 dark:bg-slate-900"
+              className="group flex flex-col justify-between gap-6 rounded border border-slate-200 bg-white p-4 shadow-card transition hover:shadow-cardHover dark:border-white/10 dark:bg-slate-900"
             >
-              <Icon className="h-7 w-7 text-amazon-teal" />
-              <div className="mt-4 flex items-center justify-between gap-2">
-                <span className="font-bold text-slate-950 dark:text-white">{category}</span>
-                <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1 group-hover:text-amazon-orange" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-[15px] font-bold leading-tight text-slate-950 dark:text-white">{category}</h3>
+                <Icon className="h-8 w-8 shrink-0 text-amazon-teal" />
               </div>
+              <span className="inline-flex items-center gap-1 text-sm text-amazon-teal group-hover:underline">
+                See more
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
             </Link>
           );
         })}
